@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo "🔍 Führe Dart Formatierung-Check aus..."
+dart format --output=none --set-exit-if-changed lib test
+if [ $? -ne 0 ]; then
+  echo "❌ Code-Formatierung fehlerhaft! Führe 'dart format .' aus und stage die Änderungen."
+  exit 1
+fi
+
+echo "🔍 Führe Flutter Linter-Analyse aus..."
+flutter analyze
+if [ $? -ne 0 ]; then
+  echo "❌ Linter-Fehler gefunden! Bitte vor dem Commit beheben."
+  exit 1
+fi
+
+echo "✓ Formatierung und Linter-Prüfung bestanden."
+exit 0
