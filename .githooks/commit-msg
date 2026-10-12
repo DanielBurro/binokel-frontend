@@ -1,0 +1,30 @@
+#!/bin/sh
+
+COMMIT_MSG_FILE=$1
+FIRST_LINE=$(head -n 1 "$COMMIT_MSG_FILE")
+
+# Erlaubte Typen strikt begrenzen (nur 'feat', kein 'feature'):
+# Format: <type>(<scope>): <beschreibung> oder <type>: <beschreibung>
+PATTERN="^(feat|fix|chore|refactor|test|docs|style|perf|ci|build|revert)(\([a-zA-Z0-9_.-]+\))?!?: [a-z0-9].+$"
+
+# Explizite Prüfung: 'feature' darf keinesfalls als Typ verwendet werden
+if echo "$FIRST_LINE" | grep -Eq "^feature[(\:]"; then
+  echo "❌ 'feature' ist kein gültiger Typ! Bitte verwende stattdessen 'feat'."
+  echo "Beispiel: feat(domain): add meld rules"
+  exit 1
+fi
+
+if ! echo "$FIRST_LINE" | grep -Eq "$PATTERN"; then
+  echo "❌ Ungültiges Commit-Message-Format!"
+  echo ""
+  echo "Erwartet: <type>(<scope>): <beschreibung im imperativ/präsens>"
+  echo "Beispiel: feat(domain): implement card deck shuffling"
+  echo "          chore(frontend): configure commit message hook"
+  echo ""
+  echo "Erlaubte Typen: feat, fix, chore, refactor, test, docs, style, perf, ci, build, revert"
+  echo "Hinweis: 'feature' ist unzulässig – nutze immer 'feat'!"
+  exit 1
+fi
+
+echo "✅ Commit-Message entspricht den Conventional Commits."
+exit 0
